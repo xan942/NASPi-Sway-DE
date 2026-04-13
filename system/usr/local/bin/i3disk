@@ -1,0 +1,24 @@
+#!/bin/bash
+# Alternates between OS (/) and data (/mnt/data) every xx seconds
+# FA4: \uf108 = fa-desktop, \uf1c0 = fa-database
+
+os_info() {
+    read used total < <(df -BG / | awk 'NR==2 {gsub("G",""); print $3, $2}')
+    printf '\uf108 %sG/%sG\n' "$used" "$total"
+}
+
+data_info() {
+    if mountpoint -q /mnt/data; then
+        read used total < <(df -BG /mnt/data | awk 'NR==2 {gsub("G",""); print $3, $2}')
+        printf '\uf1c0 %sG/%sG\n' "$used" "$total"
+    else
+        printf '\uf1c0 unmounted\n'
+    fi
+}
+#Change interval in which status bar block changes info source
+SLOT=$(( ($(date +%s) / 60) % 2 ))
+if [ "$SLOT" -eq 0 ]; then
+    os_info
+else
+    data_info
+fi

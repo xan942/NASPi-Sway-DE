@@ -1,0 +1,39 @@
+#!/bin/bash
+INT="wlan0"
+CACHE="/tmp/i3net_cache"
+
+# Pick active interface — any UP external USB wifi adapter (wlx*) takes priority over built-in
+IFACE=$INT
+for dev in /sys/class/net/wlx*; do
+    [ -d "$dev" ] || continue
+    if [ "$(cat $dev/operstate 2>/dev/null)" = "up" ]; then
+        IFACE=$(basename "$dev")
+        break
+    fi
+done
+
+RX=$(cat /sys/class/net/$IFACE/statistics/rx_bytes 2>/dev/null || echo 0)
+TX=$(cat /sys/class/net/$IFACE/statistics/tx_bytes 2>/dev/null || echo 0)
+NOW=$(date +%s)
+
+DOWN=0
+UP=0
+if [ -f "$CACHE" ]; then
+    read PREV_IFACE PREV_RX PREV_TX PREV_TIME < "$CACHE"
+    DT=$(( NOW - PREV_TIME ))
+    if [ "$PREV_IFACE" = "$IFACE" ] && [ "$DT" -gt 0 ]; then
+        DOWN=$(( (RX - PREV_RX) / DT ))
+        UP=$(( (TX - PREV_TX) / DT ))
+    fi
+fi
+echo "$IFACE $RX $TX $NOW" > "$CACHE"
+
+fmt() {
+    local b=$1
+    if   [ "$b" -ge 1048576 ]; then echo "$(( b / 1048576 ))M"
+    elif [ "$b" -ge 1024 ];    then echo "$(( b / 1024 ))K"
+    else                            echo "${b}B"
+    fi
+}
+
+echo " $(fmt $DOWN)↓ $(fmt $UP)↑ [$IFACE]"

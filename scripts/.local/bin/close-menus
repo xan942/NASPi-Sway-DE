@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Close all waybar popup menus
+pkill -f "wofi.*--prompt" 2>/dev/null
+pkill -x nwg-bar 2>/dev/null
+exit 0

@@ -1,0 +1,136 @@
+* {
+    font-family: monospace, FontAwesome;
+    font-size: 12px;
+    min-height: 0;
+    border: none;
+    padding: 0;
+}
+
+/* Transparent bar — pills float on wallpaper */
+window#waybar {
+    background-color: transparent;
+    color: #c0caf5;
+}
+
+#custom-menu {
+    background-color: rgba(26, 27, 38, 0.75);
+    color: #bb9af7;
+    border-radius: 8px;
+    padding: 0 10px;
+    margin: 2px 3px 3px 3px;
+    font-weight: bold;
+}
+#custom-menu:hover {
+    background-color: rgba(187, 154, 247, 0.25);
+    color: #c0caf5;
+}
+
+#custom-power {
+    background-color: rgba(247,118,142,0.2);
+    color: #f7768e; border-radius: 8px;
+    padding: 0 10px; margin: 2px 7px 3px 3px;
+}
+#custom-power:hover { background-color: rgba(247,118,142,0.4); 
+}
+
+/* ── Workspaces pill ── */
+#workspaces {
+    background-color: rgba(26, 27, 38, 0.75);
+    border-radius: 8px;
+    margin: 2px 0px 3px 7px;
+    padding: 0 3px;
+}
+#workspaces button {
+    color: #565f89;
+    padding: 0 8px;
+    background: transparent;
+    border-radius: 8px;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+#workspaces button.focused {
+    color: #7aa2f7;
+    background-color: rgba(41, 46, 66, 0.85);
+}
+#workspaces button:hover {
+    color: #c0caf5;
+    background-color: rgba(41, 46, 66, 0.85);
+    box-shadow: none;
+    text-shadow: none;
+}
+
+#workspaces button.urgent {
+    color: #f7768e;
+}
+/* ── Shared pill base ── */
+#clock,
+#cpu,
+#memory,
+#temperature,
+#custom-net,
+#custom-disk {
+    background-color: rgba(26, 27, 38, 0.75);
+    color: #c0caf5;
+    padding: 0 10px;
+    margin: 2px 0;
+}
+
+/* ── Clock (center) ── */
+#clock {
+    border-radius: 8px;
+    color: #7dcfff;
+    margin: 2px 4px;
+}
+
+/* ── Network pill ── */
+#custom-net {
+    border-radius: 8px;
+    color: #7dcfff;
+    margin-right: 3px;
+    margin-left: 3px;
+}
+/* ── Disk pill ── */
+#custom-disk {
+    border-radius: 8px;
+    color: #9ece6a;
+    margin-right: 3px;
+}
+/* ── CPU + Memory: connected group pill ── */
+#cpu {
+    border-radius: 8px 0 0 8px;
+    color: #7aa2f7;
+    margin-left: 3px;
+    margin-right: 0;
+    padding-right: 7px;
+}
+#memory {
+    border-radius: 0 8px 8px 0;
+    color: #bb9af7;
+    margin-left: 0;
+    margin-right: 3px;
+    padding-left: 7px;
+}
+/* ── Temperature pill ── */
+#temperature {
+    border-radius: 8px;
+    color: #e0af68;
+    margin-right: 5px;
+}
+
+#temperature.critical {
+    color: #f7768e;
+}
+
+/* Tooltips */
+tooltip {
+    background-color: rgba(26, 27, 38, 0.97);
+    border: 1px solid rgba(122, 162, 247, 0.35);
+    border-radius: 8px;
+    padding: 2px;
+}
+tooltip label {
+    color: #c0caf5;
+    font-size: 13px;
+    padding: 4px 10px;
+}

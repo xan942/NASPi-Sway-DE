@@ -1,0 +1,36 @@
+* { font-family: monospace; font-size: 11px; }
+
+window {
+    background-color: rgba(26,27,38,0.95);
+    border: 2px solid #bb9af7;
+    border-radius: 10px;
+    padding: 8px;
+}
+
+button {
+    all: unset;
+    background-color: rgba(41,46,66,0.8);
+    color: #c0caf5;
+    border: 1px solid rgba(61,89,161,0.4);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 4px;
+    min-width: 60px;
+    min-height: 60px;
+}
+
+button:hover {
+    background-color: rgba(187,154,247,0.25);
+    border-color: #bb9af7;
+    color: #bb9af7;
+}
+
+button label {
+    color: inherit;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+button image {
+    color: inherit;
+}

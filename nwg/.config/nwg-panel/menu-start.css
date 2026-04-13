@@ -1,0 +1,154 @@
+* {
+    font-family: monospace;
+    font-size: 15px;
+}
+
+box, grid, stack, scrolledwindow, viewport {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
+window, window.background {
+    background-color: rgba(26, 27, 38, 0.90);
+    border: 1px solid rgba(122, 162, 247, 0.30);
+    border-radius: 10px;
+    color: #c0caf5;
+}
+
+/* Search bar */
+entry {
+    background-color: rgba(36, 40, 59, 0.95);
+    color: #c0caf5;
+    border: 1px solid #3d59a1;
+    border-radius: 6px;
+    padding: 5px 12px;
+    margin: 8px 8px 4px 8px;
+    caret-color: #7aa2f7;
+    font-size: 15px;
+}
+entry:focus {
+    border-color: #7aa2f7;
+}
+entry image {
+    color: #565f89;
+}
+
+/* Category list (left panel) */
+list {
+    background: transparent;
+}
+list row {
+    background: transparent;
+    color: #a9b1d6;
+    border-radius: 6px;
+    padding: 2px;
+    margin: 1px 4px;
+    font-size: 16px;
+}
+list row:hover {
+    background-color: rgba(122, 162, 247, 0.15);
+    color: #c0caf5;
+}
+list row:selected {
+    background-color: rgba(122, 162, 247, 0.22);
+    color: #7aa2f7;
+}
+
+/* Buttons (categories + bottom power bar) */
+button {
+    background: transparent;
+    background-image: none;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin: 1px 3px;
+    min-height: 26px;
+    color: #a9b1d6;
+    box-shadow: none;
+    text-shadow: none;
+    font-size: 14px;
+}
+button:hover {
+    background-color: rgba(122, 162, 247, 0.18);
+    background-image: none;
+    color: #c0caf5;
+    box-shadow: none;
+}
+button:active, button:checked {
+    background-color: rgba(122, 162, 247, 0.28);
+    background-image: none;
+    color: #7aa2f7;
+}
+button label {
+    color: #a9b1d6;
+    font-size: 14px;
+}
+button:hover label {
+    color: #c0caf5;
+}
+button:active label, button:checked label {
+    color: #7aa2f7;
+}
+
+/* App grid */
+flowboxchild {
+    background: transparent;
+    border-radius: 8px;
+    padding: 6px 4px;
+    margin: 2px;
+    min-width: 82px;
+    min-height: 82px;
+    border: 1px solid transparent;
+}
+flowboxchild:hover {
+    background-color: rgba(187, 154, 247, 0.15);
+    border-color: rgba(187, 154, 247, 0.30);
+}
+flowboxchild:selected {
+    background-color: rgba(122, 162, 247, 0.20);
+    border-color: rgba(122, 162, 247, 0.45);
+}
+
+/* Symbolic icons (power bar) */
+window image {
+    color: #bb9af7;
+    min-width: 16px;
+    min-height: 16px;
+}
+
+/* App name labels */
+label {
+    color: #c0caf5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Separator */
+separator {
+    background-color: rgba(86, 95, 137, 0.35);
+    min-width: 1px;
+    min-height: 1px;
+    margin: 4px 6px;
+}
+
+/* Scrollbar */
+scrollbar {
+    background-color: transparent;
+    min-width: 5px;
+}
+scrollbar trough {
+    background-color: rgba(41, 46, 66, 0.4);
+    border-radius: 3px;
+    min-width: 5px;
+}
+scrollbar slider {
+    background-color: rgba(122, 162, 247, 0.35);
+    border-radius: 3px;
+    min-width: 5px;
+    min-height: 30px;
+}
+scrollbar slider:hover {
+    background-color: rgba(122, 162, 247, 0.65);
+}

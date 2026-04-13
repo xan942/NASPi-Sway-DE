@@ -1,0 +1,11 @@
+[Icon Theme]
+Name=NASPi
+Comment=Local icon aliases for NASPi desktop
+Inherits=Adwaita
+Directories=scalable/actions
+
+[scalable/actions]
+Size=48
+MinSize=16
+MaxSize=512
+Type=Scalable

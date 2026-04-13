@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+"""
+Wofi launcher: drun mode (icons native) with 5 recent apps pinned at top.
+Uses drun-print_command to intercept selection, updates cache ordering.
+"""
+
+import os, re, subprocess
+from pathlib import Path
+
+RECENT_FILE = Path.home() / '.cache/wofi-recent'
+DRUN_CACHE  = Path.home() / '.cache/wofi-drun'
+MAX_RECENT  = 5
+TERM        = 'foot'
+
+DESKTOP_DIRS = [
+    '/usr/share/applications',
+    '/usr/local/share/applications',
+    str(Path.home() / '.local/share/applications'),
+    '/var/lib/flatpak/exports/share/applications',
+    str(Path.home() / '.local/share/flatpak/exports/share/applications'),
+]
+
+
+# ── Desktop file parsing ────────────────────────────────────────────────────
+
+def parse_desktop_files():
+    """Return {desktop_path: {name, exec, terminal}} for all visible apps."""
+    apps = {}
+    for d in DESKTOP_DIRS:
+        if not os.path.isdir(d):
+            continue
+        for fname in sorted(os.listdir(d)):
+            if not fname.endswith('.desktop'):
+                continue
+            path = os.path.join(d, fname)
+            props = {}
+            try:
+                with open(path, errors='ignore') as f:
+                    in_entry = False
+                    for line in f:
+                        line = line.rstrip('\n')
+                        if line == '[Desktop Entry]':
+                            in_entry = True
+                        elif line.startswith('['):
+                            if in_entry:
+                                break
+                        if not in_entry or '=' not in line:
+                            continue
+                        k, v = line.split('=', 1)
+                        props.setdefault(k.strip(), v.strip())
+            except Exception:
+                continue
+            if props.get('NoDisplay') == 'true':        continue
+            if props.get('Hidden')    == 'true':        continue
+            if props.get('Type')      != 'Application': continue
+            name = props.get('Name')
+            exec_cmd = props.get('Exec')
+            if not name or not exec_cmd:
+                continue
+            apps[path] = {
+                'name':     name,
+                'exec':     exec_cmd,
+                'terminal': props.get('Terminal') == 'true',
+            }
+    return apps
+
+
+# ── Recent tracking ─────────────────────────────────────────────────────────
+
+def get_recent():
+    if RECENT_FILE.exists():
+        return [l.strip() for l in RECENT_FILE.read_text().splitlines() if l.strip()]
+    return []
+
+def update_recent(name):
+    recent = get_recent()
+    if name in recent:
+        recent.remove(name)
+    recent.insert(0, name)
+    RECENT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RECENT_FILE.write_text('\n'.join(recent[:MAX_RECENT]) + '\n')
+
+
+# ── Cache manipulation ───────────────────────────────────────────────────────
+
+def _cache_path(desktop_path):
+    """Replicate wofi's cache path format (double-slash after base dir)."""
+    for d in DESKTOP_DIRS:
+        if desktop_path.startswith(d + '/'):
+            fname = desktop_path[len(d) + 1:]
+            return d + '/' + fname   # normalised single slash
+    return desktop_path
+
+def read_cache():
+    """Return list of (count, path) preserving file order."""
+    if not DRUN_CACHE.exists():
+        return []
+    entries = []
+    for line in DRUN_CACHE.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(' ', 1)
+        if len(parts) == 2:
+            try:
+                entries.append((int(parts[0]), parts[1]))
+            except ValueError:
+                pass
+    return entries
+
+def write_cache(entries):
+    DRUN_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    DRUN_CACHE.write_text(
+        '\n'.join(f'{c} {p}' for c, p in entries) + '\n'
+    )
+
+def prepare_cache(apps, recent_names):
+    """
+    Rewrite drun cache so recent apps appear first (high counts),
+    followed by all other apps in alphabetical order.
+    """
+    # Build name→path mapping
+    name_to_path = {v['name']: k for k, v in apps.items()}
+
+    # Start with existing cache entries (normalised), keyed by path
+    existing = {p: c for c, p in read_cache()}
+
+    new_entries = []
+    seen = set()
+    boost = 9999
+
+    # 1. Recent apps first
+    for name in recent_names:
+        path = name_to_path.get(name)
+        if path:
+            new_entries.append((boost, path))
+            seen.add(path)
+            boost -= 1
+
+    # 2. All other apps alphabetically (count 1)
+    for path, info in sorted(apps.items(), key=lambda x: x[1]['name'].lower()):
+        if path not in seen:
+            new_entries.append((existing.get(path, 1), path))
+            seen.add(path)
+
+    write_cache(new_entries)
+
+
+# ── Launch ───────────────────────────────────────────────────────────────────
+
+def launch(app):
+    cmd = re.sub(r'%[a-zA-Z]', '', app['exec']).strip()
+    if app['terminal']:
+        subprocess.Popen([TERM, '-e', 'sh', '-c', cmd])
+    else:
+        subprocess.Popen(['sh', '-c', cmd])
+
+
+# ── Main ─────────────────────────────────────────────────────────────────────
+
+def main():
+    apps         = parse_desktop_files()
+    recent_names = get_recent()
+
+    # Reorder cache so recent apps appear first
+    prepare_cache(apps, recent_names)
+
+    # Run wofi in drun mode; print_command=true prints Exec to stdout
+    result = subprocess.run(
+        ['wofi', '--show', 'drun',
+         '--define', 'drun-print_command=true',
+         '--insensitive', '--columns', '2',
+         '--width', '700', '--height', '520',
+         '--location', 'center', '--gtk-dark'],
+        capture_output=True, text=True
+    )
+
+    selected_cmd = result.stdout.strip()
+    if not selected_cmd:
+        return
+
+    # Match printed command back to an app name
+    selected_cmd_clean = re.sub(r'%[a-zA-Z]', '', selected_cmd).strip()
+    for path, info in apps.items():
+        exec_clean = re.sub(r'%[a-zA-Z]', '', info['exec']).strip()
+        if exec_clean == selected_cmd_clean:
+            update_recent(info['name'])
+            launch(info)
+            return
+
+    # Fallback: just run the command directly if no match found
+    subprocess.Popen(['sh', '-c', selected_cmd_clean])
+
+
+if __name__ == '__main__':
+    main()
+
+

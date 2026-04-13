@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+PROMPT="Bluetooth"
+
+# Toggle off if already open
+if pgrep -f "wofi.*--prompt $PROMPT" > /dev/null; then
+    pkill -f "wofi.*--prompt $PROMPT"
+    exit 0
+fi
+
+# Close all other menus
+/home/pi/.local/bin/close-menus
+
+POWERED=$(bluetoothctl show | grep -oP '(?<=Powered: )\w+')
+[ "$POWERED" = "no" ] && POWER_LABEL="  Power on" || POWER_LABEL="  Power off"
+
+CONNECTED=$(bluetoothctl devices Connected | awk '{$1=$2=""; gsub(/^ +/,"",$0); print "  \uf294 "$0}')
+
+ITEMS="$POWER_LABEL\n  Scan for devices"
+[ -n "$CONNECTED" ] && ITEMS="$ITEMS\n──────────────\n$CONNECTED"
+ITEMS="$ITEMS\n  Open Blueman"
+
+CHOICE=$(printf "%b" "$ITEMS" \
+    | wofi --dmenu --prompt "$PROMPT" --width 240 --height 220 --hide-scroll 2>/dev/null)
+
+case "$CHOICE" in
+    *"Power on")     bluetoothctl power on ;;
+    *"Power off")    bluetoothctl power off ;;
+    *"Scan"*)        foot -e bash -c "bluetoothctl scan on; read" & ;;
+    *"Open Blueman") blueman-manager & ;;
+    *"\uf294"*)
+        NAME=$(echo "$CHOICE" | sed 's/.*\uf294 //')
+        DEV=$(bluetoothctl devices Connected | grep "$NAME" | awk '{print $2}')
+        [ -n "$DEV" ] && bluetoothctl disconnect "$DEV"
+        ;;
+esac

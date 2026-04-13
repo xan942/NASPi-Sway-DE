@@ -1,0 +1,14 @@
+width=700
+height=520
+location=center
+show=drun
+insensitive=true
+prompt=Search apps...
+term=foot
+gtk_dark=true
+allow_images=true
+image_size=24
+columns=2
+line_wrap=word
+no_actions=true
+hide_scroll=false

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+PROMPT="Network"
+
+# Toggle off if already open
+if pgrep -f "wofi.*--prompt $PROMPT" > /dev/null; then
+    pkill -f "wofi.*--prompt $PROMPT"
+    exit 0
+fi
+
+# Close all other menus
+/home/pi/.local/bin/close-menus
+
+ACTIVE=$(nmcli -t -f NAME,TYPE,STATE connection show --active \
+    | grep -v loopback | head -3 \
+    | awk -F: '{printf "  %s (%s)\n", $1, $2}')
+
+ITEMS=""
+[ -n "$ACTIVE" ] && ITEMS="──────────────\n$ACTIVE\n──────────────\n"
+ITEMS="${ITEMS}  Scan networks\n  Toggle WiFi\n  Disconnect\n  Network settings"
+
+CHOICE=$(printf "%b" "$ITEMS" \
+    | wofi --dmenu --prompt "$PROMPT" --width 260 --height 240 --hide-scroll 2>/dev/null)
+
+case "$CHOICE" in
+    *"Scan networks")
+        SSID=$(nmcli -t -f SSID,SIGNAL,SECURITY device wifi list \
+            | awk -F: 'NF>1 && $1!="" {printf "  %s  (%s%% %s)\n", $1, $2, $3}' \
+            | wofi --dmenu --prompt "Connect to..." --width 300 --height 300 2>/dev/null)
+        SSID=$(echo "$SSID" | sed 's/^ *//' | awk '{print $1}')
+        [ -n "$SSID" ] && nmcli device wifi connect "$SSID"
+        ;;
+    *"Toggle WiFi")
+        STATE=$(nmcli radio wifi)
+        [ "$STATE" = "enabled" ] && nmcli radio wifi off || nmcli radio wifi on
+        ;;
+    *"Disconnect")    nmcli networking off; sleep 1; nmcli networking on ;;
+    *"Network settings") nm-connection-editor & ;;
+esac

@@ -1,0 +1,72 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "spacing": 0,
+    "modules-left": [
+        "custom/power",        
+        "custom/menu",
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "custom/net",
+        "custom/disk",
+        "cpu",
+        "memory",
+        "temperature"
+    ],
+
+    "custom/power": {
+        "format": "\uf011",
+        "on-click": "swaymsg exec /home/pi/.local/bin/nwg-bar-toggle",
+        "tooltip": false
+    },
+    "custom/menu": {
+        "format": "\uf11b",
+        "on-click": "swaymsg exec '/home/pi/.local/bin/close-menus && GTK_THEME=Adwaita:dark nwg-menu -wm sway -va top -mt 0 -ha left -ml 52'",
+        "tooltip": false
+    },
+    "clock": {
+        "format": "{:%H:%M:%S}",
+        "format-alt": "{:%a %m/%d/%y %I:%M:%p}",
+        "interval": 1,
+        "on-click-right": "foot -e calcurse",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "format": {
+                "today": "<span color='#7aa2f7'><b><u>{}</u></b></span>"
+            }
+        }
+    },
+    "custom/net": {
+        "exec": "/usr/local/bin/i3net",
+        "interval": 2,
+        "format": "{}",
+        "tooltip": false
+    },
+    "custom/disk": {
+        "exec": "/usr/local/bin/i3disk",
+        "interval": 60,
+        "format": "{}",
+        "tooltip": false
+    },
+    "cpu": {
+        "interval": 2,
+        "format": "\uf108  {usage}%",
+        "tooltip": false
+    },
+    "memory": {
+        "interval": 5,
+        "format": "\uf2db  {used:.1f}G",
+        "tooltip-format": "{used:.1f}G used / {total:.1f}G total"
+    },
+    "temperature": {
+        "interval": 5,
+        "format": "\uf2c9  {temperatureC}°C",
+        "critical-threshold": 75,
+        "format-critical": "\uf2c9  {temperatureC}°C"
+    }
+}

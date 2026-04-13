@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Toggle nwg-bar power menu
+if pgrep -x nwg-bar > /dev/null; then
+    pkill -x nwg-bar
+else
+    /home/pi/.local/bin/close-menus
+    nwg-bar &
+fi

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+PROMPT="Volume"
+
+# Toggle off if already open
+if pgrep -f "wofi.*--prompt $PROMPT" > /dev/null; then
+    pkill -f "wofi.*--prompt $PROMPT"
+    exit 0
+fi
+
+# Close all other menus
+/home/pi/.local/bin/close-menus
+
+SINK=$(pactl get-default-sink)
+VOL=$(pactl get-sink-volume "$SINK" | grep -oP '\d+%' | head -1)
+MUTE=$(pactl get-sink-mute "$SINK" | grep -oP 'yes|no')
+MUTE_LABEL="  Mute"
+[ "$MUTE" = "yes" ] && MUTE_LABEL="  Unmute  (currently muted)"
+
+CHOICE=$(printf "  Volume: %s\n  Set 25%%\n  Set 50%%\n  Set 75%%\n  Set 100%%\n%s\n  Open mixer" \
+    "$VOL" "$MUTE_LABEL" \
+    | wofi --dmenu --prompt "$PROMPT" --width 220 --height 240 --hide-scroll 2>/dev/null)
+
+case "$CHOICE" in
+    *"Set 25%")   pactl set-sink-volume "$SINK" 25% ;;
+    *"Set 50%")   pactl set-sink-volume "$SINK" 50% ;;
+    *"Set 75%")   pactl set-sink-volume "$SINK" 75% ;;
+    *"Set 100%")  pactl set-sink-volume "$SINK" 100% ;;
+    *"Mute")      pactl set-sink-mute "$SINK" toggle ;;
+    *"Unmute"*)   pactl set-sink-mute "$SINK" toggle ;;
+    *"Open mixer") pavucontrol & ;;
+esac
