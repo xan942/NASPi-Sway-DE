@@ -1,24 +1,46 @@
 #!/bin/bash
-# Alternates between OS (/) and data (/mnt/data) every xx seconds
-# FA4: \uf108 = fa-desktop, \uf1c0 = fa-database
+# Alternates between OS (/) and data (/mnt/data) every minute
 
-os_info() {
-    read used total < <(df -BG / | awk 'NR==2 {gsub("G",""); print $3, $2}')
-    printf '\uf108 %sG/%sG\n' "$used" "$total"
+OS_ICON=$'\uf108'    # fa-desktop
+DATA_ICON=$'\uf1c0'  # fa-database
+
+get_disk_info() {
+    df -BG "$1" | awk 'NR==2 {gsub("[G%]",""); print $3, $2, $4, $5}'
 }
 
-data_info() {
+os_text() {
+    read used total avail pct < <(get_disk_info /)
+    printf '%s %sG/%sG' "$OS_ICON" "$used" "$total"
+}
+
+data_text() {
     if mountpoint -q /mnt/data; then
-        read used total < <(df -BG /mnt/data | awk 'NR==2 {gsub("G",""); print $3, $2}')
-        printf '\uf1c0 %sG/%sG\n' "$used" "$total"
+        read used total avail pct < <(get_disk_info /mnt/data)
+        printf '%s %sG/%sG' "$DATA_ICON" "$used" "$total"
     else
-        printf '\uf1c0 unmounted\n'
+        printf '%s unmounted' "$DATA_ICON"
     fi
 }
-#Change interval in which status bar block changes info source
+
+tooltip() {
+    read ru rt ra rp < <(get_disk_info /)
+    printf '[/]    %sG used / %sG total  (%s%%)' "$ru" "$rt" "$rp"
+    printf '\\n'
+    if mountpoint -q /mnt/data; then
+        read du dt da dp < <(get_disk_info /mnt/data)
+        printf '[mnt]  %sG used / %sG total  (%s%%)' "$du" "$dt" "$dp"
+    else
+        printf '[mnt]  unmounted'
+    fi
+}
+
 SLOT=$(( ($(date +%s) / 60) % 2 ))
 if [ "$SLOT" -eq 0 ]; then
-    os_info
+    TEXT=$(os_text)
 else
-    data_info
+    TEXT=$(data_text)
 fi
+
+TOOLTIP=$(tooltip)
+
+printf '{"text":"%s","tooltip":"%s"}\n' "$TEXT" "$TOOLTIP"

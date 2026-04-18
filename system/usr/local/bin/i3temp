@@ -1,0 +1,25 @@
+#!/bin/bash
+TEMP_RAW=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
+TEMP=$(( TEMP_RAW / 1000 ))
+CLASS="normal"
+if [ "$TEMP" -ge 75 ]; then
+    COLOR="#f7768e"; LABEL="Critical"; CLASS="critical"
+elif [ "$TEMP" -ge 65 ]; then
+    COLOR="#f7768e"; LABEL="Hot"
+elif [ "$TEMP" -ge 50 ]; then
+    COLOR="#e0af68"; LABEL="Warm"
+else
+    COLOR="#9ece6a"; LABEL="Cool"
+fi
+PCT=$(( TEMP > 100 ? 100 : TEMP ))
+FILLED=$(( PCT / 10 ))
+EMPTY=$(( 10 - FILLED ))
+BAR=""
+for i in $(seq 1 "$FILLED"); do BAR="${BAR}█"; done
+for i in $(seq 1 "$EMPTY"); do BAR="${BAR}░"; done
+ICON=$'\uf2c9'
+TEXT="${ICON}  ${TEMP}°C"
+L1="<span color='${COLOR}'><b>${TEMP}°C</b></span>  —  ${LABEL}"
+L2="<span color='${COLOR}'>${BAR}</span>"
+FMT='{"text":"%s","tooltip":"%s\\n%s","class":"%s"}\n'
+printf "$FMT" "$TEXT" "$L1" "$L2" "$CLASS"

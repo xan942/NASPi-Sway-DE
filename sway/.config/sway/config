@@ -274,5 +274,6 @@ exec swayidle -w \
 exec lxpolkit
 exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
+exec systemctl --user start xdg-desktop-portal-wlr
 
 include /etc/sway/config.d/*

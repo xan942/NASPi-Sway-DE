@@ -1,7 +1,6 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 28,
     "spacing": 0,
     "modules-left": [
         "custom/power",        
@@ -15,7 +14,7 @@
         "custom/disk",
         "cpu",
         "memory",
-        "temperature"
+        "custom/temp"
     ],
 
     "custom/power": {
@@ -30,7 +29,7 @@
     },
     "clock": {
         "format": "{:%H:%M:%S}",
-        "format-alt": "{:%a %m/%d/%y %I:%M:%p}",
+        "format-alt": "{:%a %m/%d/%y %I:%M %p}",
         "interval": 1,
         "on-click-right": "foot -e calcurse",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
@@ -45,28 +44,28 @@
         "exec": "/usr/local/bin/i3net",
         "interval": 2,
         "format": "{}",
-        "tooltip": false
+        "return-type": "json"
     },
     "custom/disk": {
         "exec": "/usr/local/bin/i3disk",
         "interval": 60,
         "format": "{}",
-        "tooltip": false
+        "return-type": "json"
     },
     "cpu": {
         "interval": 2,
         "format": "\uf108  {usage}%",
-        "tooltip": false
+        "tooltip-format": "CPU: {usage}%  ·  Load: {load}\n\nCore 0: {usage0}%   Core 1: {usage1}%\nCore 2: {usage2}%   Core 3: {usage3}%"
     },
     "memory": {
         "interval": 5,
         "format": "\uf2db  {used:.1f}G",
         "tooltip-format": "{used:.1f}G used / {total:.1f}G total"
     },
-    "temperature": {
+    "custom/temp": {
+        "exec": "/usr/local/bin/i3temp",
         "interval": 5,
-        "format": "\uf2c9  {temperatureC}°C",
-        "critical-threshold": 75,
-        "format-critical": "\uf2c9  {temperatureC}°C"
+        "format": "{}",
+        "return-type": "json"
     }
 }

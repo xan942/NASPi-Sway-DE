@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Wofi launcher: drun mode (icons native) with 5 recent apps pinned at top.
-Uses drun-print_command to intercept selection, updates cache ordering.
+Wofi launcher: drun mode (icons native), apps listed alphabetically.
+Uses drun-print_command to intercept selection.
 """
 
 import os, re, subprocess
@@ -114,35 +114,11 @@ def write_cache(entries):
         '\n'.join(f'{c} {p}' for c, p in entries) + '\n'
     )
 
-def prepare_cache(apps, recent_names):
-    """
-    Rewrite drun cache so recent apps appear first (high counts),
-    followed by all other apps in alphabetical order.
-    """
-    # Build name→path mapping
-    name_to_path = {v['name']: k for k, v in apps.items()}
-
-    # Start with existing cache entries (normalised), keyed by path
-    existing = {p: c for c, p in read_cache()}
-
+def prepare_cache(apps):
+    """Rewrite drun cache with all apps in alphabetical order (count 1)."""
     new_entries = []
-    seen = set()
-    boost = 9999
-
-    # 1. Recent apps first
-    for name in recent_names:
-        path = name_to_path.get(name)
-        if path:
-            new_entries.append((boost, path))
-            seen.add(path)
-            boost -= 1
-
-    # 2. All other apps alphabetically (count 1)
     for path, info in sorted(apps.items(), key=lambda x: x[1]['name'].lower()):
-        if path not in seen:
-            new_entries.append((existing.get(path, 1), path))
-            seen.add(path)
-
+        new_entries.append((1, path))
     write_cache(new_entries)
 
 
@@ -159,11 +135,8 @@ def launch(app):
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    apps         = parse_desktop_files()
-    recent_names = get_recent()
-
-    # Reorder cache so recent apps appear first
-    prepare_cache(apps, recent_names)
+    apps = parse_desktop_files()
+    prepare_cache(apps)
 
     # Run wofi in drun mode; print_command=true prints Exec to stdout
     result = subprocess.run(
@@ -184,7 +157,6 @@ def main():
     for path, info in apps.items():
         exec_clean = re.sub(r'%[a-zA-Z]', '', info['exec']).strip()
         if exec_clean == selected_cmd_clean:
-            update_recent(info['name'])
             launch(info)
             return
 

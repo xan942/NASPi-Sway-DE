@@ -30,10 +30,29 @@ echo "$IFACE $RX $TX $NOW" > "$CACHE"
 
 fmt() {
     local b=$1
-    if   [ "$b" -ge 1048576 ]; then echo "$(( b / 1048576 ))M"
-    elif [ "$b" -ge 1024 ];    then echo "$(( b / 1024 ))K"
-    else                            echo "${b}B"
+    if   [ "$b" -ge 1048576 ]; then printf "%sM" "$(( b / 1048576 ))"
+    elif [ "$b" -ge 1024 ];    then printf "%sK" "$(( b / 1024 ))"
+    else                            printf "%sB" "$b"
     fi
 }
 
-echo " $(fmt $DOWN)↓ $(fmt $UP)↑ [$IFACE]"
+fmtbig() {
+    local b=$1
+    if   [ "$b" -ge 1073741824 ]; then awk "BEGIN{printf \"%.1fG\", $b/1073741824}"
+    elif [ "$b" -ge 1048576 ];    then printf "%sM" "$(( b / 1048576 ))"
+    elif [ "$b" -ge 1024 ];       then printf "%sK" "$(( b / 1024 ))"
+    else                               printf "%sB" "$b"
+    fi
+}
+
+IP=$(ip -4 addr show "$IFACE" 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)
+[ -z "$IP" ] && IP="no IP"
+
+NET_ICON=$'\uf1eb'
+TEXT="${NET_ICON} $(fmt $DOWN)↓ $(fmt $UP)↑ [${IFACE}]"
+
+L1="${IFACE}  ${IP}"
+L2="↓ $(fmt $DOWN)/s   ↑ $(fmt $UP)/s"
+L3="Total RX: $(fmtbig $RX)   TX: $(fmtbig $TX)"
+
+printf '{"text":"%s","tooltip":"%s\\n%s\\n%s"}\n' "$TEXT" "$L1" "$L2" "$L3"

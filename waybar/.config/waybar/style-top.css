@@ -68,6 +68,7 @@ window#waybar {
 #cpu,
 #memory,
 #temperature,
+#custom-temp,
 #custom-net,
 #custom-disk {
     background-color: rgba(26, 27, 38, 0.75);
@@ -112,13 +113,15 @@ window#waybar {
     padding-left: 7px;
 }
 /* ── Temperature pill ── */
-#temperature {
+#temperature,
+#custom-temp {
     border-radius: 8px;
     color: #e0af68;
     margin-right: 5px;
 }
 
-#temperature.critical {
+#temperature.critical,
+#custom-temp.critical {
     color: #f7768e;
 }
 
