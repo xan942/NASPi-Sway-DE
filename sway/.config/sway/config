@@ -107,6 +107,9 @@ output * resolution 1920x1280 scale 1.25
     # Reload the configuration file
     bindsym $mod+Shift+c reload
 
+    # Reload waybar (both bars)
+    bindsym $mod+Shift+b exec /home/pi/.local/bin/waybar-reload
+
     # Exit sway (logs you out of your Wayland session)
     bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 #

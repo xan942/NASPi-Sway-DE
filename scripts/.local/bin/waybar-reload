@@ -1,0 +1,7 @@
+#!/bin/bash
+pkill -x waybar
+sleep 0.5
+waybar -c ~/.config/waybar/config-top.jsonc -s ~/.config/waybar/style-top.css > /dev/null 2>&1 &
+disown $!
+waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css > /dev/null 2>&1 &
+disown $!
