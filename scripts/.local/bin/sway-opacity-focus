@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# EXCLUDE_APPS: apps that have explicit for_window opacity rules in ~/.config/sway/config
+# The script skips these entirely — their sway config rules always take precedence
+# Add new app_id or class values here when adding new per-app opacity rules to sway config
+EXCLUDE_APPS=("chromium" "Chromium")
+
+# prev_id: con_id of the previously focused window (so we can dim it on next focus event)
+prev_id=""
+# prev_app_id: app_id/class of the previously focused window (so we can check the exclude list)
+prev_app_id=""
+
+# is_excluded: returns 0 (true) if the given app identifier is in EXCLUDE_APPS
+# $1: app_id or window class string to check
+is_excluded() {
+    local app="$1"
+    # loop: iterate through each entry in the exclude list
+    for excluded in "${EXCLUDE_APPS[@]}"; do
+        # ==: exact string match (case-sensitive)
+        [[ "$app" == "$excluded" ]] && return 0
+    done
+    return 1
+}
+
+# swaymsg -t subscribe: open a persistent connection to Sway's IPC event socket
+# -m: monitor mode — stay connected and stream all events indefinitely
+# `["window']`: subscribe to window events only (open, close, focus, etc.)
+# | jq: JSON stream processor — parses and filters each event
+# -r: raw output — no surrounding quotes (needed so read gets bare values)
+# --unbuffered: flush after each JSON object (prevents pipe stall)
+# select(.change == `focus'): only pass focus-change events
+# .container.app_id // .container.window_properties.class // '`: get app identifier
+#   app_id: set for Wayland-native apps; null for XWayland apps
+#   window_properties.class: fallback for XWayland apps (e.g. Chromium running via XWayland)
+#   // '`: final fallback — empty string if neither field exists
+# @tsv: output as tab-separated values so IFS=$'\t` read splits them correctly
+swaymsg -t subscribe -m '["window"]' | jq -r --unbuffered '
+  select(.change == "focus") |
+  [.container.id, (.container.app_id // .container.window_properties.class // "")] |
+  @tsv
+' | while IFS=$'\t' read CON_ID APP_ID; do
+    # dim the previously focused window (if it exists and is not app-excluded)
+    if [[ -n "$prev_id" ]] && ! is_excluded "$prev_app_id"; then
+        # opacity 0.92: base unfocused opacity — matches for_window [app_id='.*"] value
+        swaymsg "[con_id=$prev_id] opacity 0.92"
+    fi
+    # make the newly focused window more opaque (if not app-excluded)
+    if ! is_excluded "$APP_ID"; then
+        # opacity 0.98: focused opacity — slightly more visible than unfocused 0.92
+        swaymsg "[con_id=$CON_ID] opacity 0.98"
+    fi
+    # store current window for next iteration
+    prev_id=$CON_ID
+    prev_app_id=$APP_ID
+done
