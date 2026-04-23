@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<submenu></submenu>
+	<unique-id>1774364700848630-1</unique-id>
+	<command>exo-open --working-directory %f --launch TerminalEmulator</command>
+	<description>Example for a custom action</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon></icon>
+	<name></name>
+	<submenu></submenu>
+	<unique-id>1774604952780395-1</unique-id>
+	<command></command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+</action>
+<action>                                                                                                            
+	<!-- icon: icon name shown in the right-click menu -->
+  	<!-- (preferences-desktop-wallpaper is a standard freedesktop icon name) -->
+    	<icon>preferences-desktop-wallpaper</icon>
+    	<!-- name: text label shown in the right-click context menu -->
+    	<name>Set as Wallpaper</name>
+    	<!-- submenu: leave empty (this action doesn't create a submenu) -->
+    	<submenu></submenu>
+    	<!-- unique-id: internal identifier for this action -->
+    	<!-- (should be unique; generated as: date +%s%N | cut -b1-16) -->
+    	<unique-id>1774604952780395-2</unique-id>
+    	<!-- command: the program to execute when the action is selected -->
+    	<!-- %f: Thunar substitutes this with the full path of the selected file -->
+    	<!-- /usr/local/bin/set-wallpaper.sh: the script we created in Step 1 -->
+    	<command>/usr/local/bin/set-wallpaper.sh %f</command>
+    	<!-- description: tooltip text shown when hovering over the action -->
+    	<description>Set this image as the Sway desktop wallpaper</description>
+    	<!-- range: leave empty (applies to single selection, not ranges) -->
+    	<range></range>
+    	<!-- patterns: file extensions that trigger this action -->
+    	<!-- (Thunar only shows this action for files matching these patterns) -->
+    	<!-- *.jpg;*.jpeg;*.png;*.webp;*.bmp;*.gif;*.tiff: common image formats -->
+    	<patterns>*.jpg;*.jpeg;*.jpe;*.jfif;*.png;*.webp;*.bmp;*.gif;*.tiff;*.tif;*.avif;*.heic;*.heif;*.ico;*.xpm;*.svg </patterns>
+    	<!-- image-files/: restrict this action to image files only (not directories) -->
+    	<!-- (empty tag = enabled) -->
+    	<image-files/>
+</action>                                
+</actions>

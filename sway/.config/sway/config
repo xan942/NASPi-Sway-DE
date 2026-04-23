@@ -24,7 +24,7 @@ include /etc/sway/config-vars.d/*
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/884373.png fill
+output * bg /usr/share/backgrounds/greybird.svg fill
 output * resolution 1920x1280 scale 1.25
 #
 # Example configuration:
@@ -241,8 +241,10 @@ default_border pixel 2
 #
 #Window Opacity
 #
-for_window [app_id=".*"] opacity 0.87 
-for_window [class=".*"] opacity 0.95
+for_window [app_id="chromium"] opacity 1.0
+for_window [class="Chromium"] opacity 1.0                                                                           
+for_window [app_id=".*" con_id="__focused__"] opacity 1.0
+for_window [app_id=".*"] opacity 0.85
 
 #
 # Status Bar:
